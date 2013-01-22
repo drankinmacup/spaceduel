@@ -1,36 +1,29 @@
 /*===========================================
-        Space Duel - Ship Object CCP
-		Initial Testing
+        Space Duel - Initial Testing
+		
+		Based on GRRLIB (GX Version) Template
+		    Minimum Code To Use GRRLIB
 ============================================*/
 #include "Ship.h"
 
-
-Ship::Ship(f32 imgsizec, f32 Rc, f32 shieldmaxc, f32 massc, f32 accc, u32 scolorc, u32 wcolorc) {
-	imgsize = imgsizec;
+Ship::Ship(f32 Rc, f32 massc, f32 accc, f32 shieldMaxc, f32 ammoMaxc, u32 scolorc, u32 wcolorc) {
 	R = Rc;
-	shieldmax = shieldmaxc;
-	shield = shieldmax;
 	mass = massc;
-	acc = accc;
+	accc = accc;
+	shieldMax = shieldMaxc;
+	shield = shieldMax;
+	ammoMax = ammoMaxc;
+	ammo = ammoMax;
 	scolor = scolorc;
 	wcolor = wcolorc;
-	srand(time(0));
-	x = 100 + rand() % 440;
-	y = 100 + rand() % 280;
-	theta = rand() % 360;
 	vx = 0;
 	vy = 0;
 	isAcc = false;
-}
 	
-
-f32 Ship::getXdraw() {
-	return x - imgsize * cos((theta + 45) * PI / 180);
-}
-
-f32 Ship::getYdraw() {
-
-	return y - imgsize * sin((theta + 45) * PI / 180);
+	srand(time(0));
+	x = 100 + rand() % 540;
+	y = 100 + rand() % 380;
+	theta = rand() % 360;
 }
 
 f32 Ship::getX() {
@@ -38,24 +31,7 @@ f32 Ship::getX() {
 }
 
 f32 Ship::getY() {
-
 	return y;
-}
-
-f32 Ship::getTheta() {
-	return theta;
-}
-
-f32 Ship::getR() {
-	return R;
-}
-
-f32 Ship::getShield() {
-	return shield;
-}
-
-f32 Ship::getMass() {
-	return mass;
 }
 
 f32 Ship::getVx() {
@@ -66,12 +42,28 @@ f32 Ship::getVy() {
 	return vy;
 }
 
-u32 Ship::getSColor() {
+f32 Ship::getTheta() {
+	return theta;
+}
+
+f32 Ship::getR() {
+	return R;
+}
+
+u32 Ship::getScolor() {
 	return scolor;
 }
 
-u32 Ship::getWColor() {
+u32 Ship::getWcolor() {
 	return wcolor;
+}
+
+u32 Ship::getAccentColor() {
+	return ammo / ammoMax * 0xFFFFFFFF;
+}
+
+u32 Ship::getShieldColor() {
+	return shield / shieldMax * 0xFFFFFFFF;
 }
 
 void Ship::thrust() {
@@ -79,34 +71,18 @@ void Ship::thrust() {
 }
 
 void Ship::rotate(int dir) {
-	rotDir = dir;
+	theta += dir;
 }
 
 void Ship::collide(f32 vx2, f32 vy2) {
-	vy = vy2;
 	vx = vx2;
-}
-
-int Ship::attacked(f32 damage) {
-	if (shield > 0) {
-		shield -= damage;
-		if (shield <= 0) {
-			shield = 0;
-			return 1;
-		}
-		else { return 0;}
-	}
-	else { // (shield == 0)
-		return 2;
-	}
+	vy = vy2;
 }
 
 void Ship::advance(f32 time) {
 	x += vx * time;
 	y += vy * time;
-	vx += (f32) isAcc * acc * time * sin(theta * PI / 180);
-	vy -= (f32) isAcc * acc * time * cos(theta * PI / 180);
-	theta += rotDir;
-	rotDir = 0;
+	vx += (int) isAcc * sin(theta * PI / 180) * time * 0.03;
+	vy -= (int) isAcc * cos(theta * PI / 180) * time * 0.03;
 	isAcc = false;
 }

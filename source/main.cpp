@@ -8,24 +8,18 @@
 
 #include <stdlib.h>
 #include <wiiuse/wpad.h>
-#include <math.h>
-
-#include <sstream> //for num to string
 
 #include "Ship.h"
-
-#define PI 3.14159265
 
 #include "classicbody_png.h"
 #include "classicaccent_png.h"
 #include "classicshield_png.h"
 
-
-
-
+#define IMGSIZE 64
 
 int const screenW = 640;
 int const screenH = 480;
+f32 const scale = 0.2;  // Scales size of ships since the resolution is small
 
 int main(int argc, char **argv) {
     // Initialise the Graphics & Video subsystem
@@ -34,46 +28,44 @@ int main(int argc, char **argv) {
 	GRRLIB_texImg *clbody = GRRLIB_LoadTexture(classicbody_png);
 	GRRLIB_texImg *claccent = GRRLIB_LoadTexture(classicaccent_png);
 	GRRLIB_texImg *clshield = GRRLIB_LoadTexture(classicshield_png);
-
-    // Initialise the Wiimotes
+	GRRLIB_SetMidHandle(clbody, true);
+	GRRLIB_SetMidHandle(claccent, true);
+	GRRLIB_SetMidHandle(clshield, true);
+	
+    // Initialize the Wiimotes
     WPAD_Init();
 	
-	Ship p1ship(45.25483400, 30, 100, 100, .1, 0x00FFFFFF, 0xFFFFFFFF);
+	Ship p1ship(56 * scale, 100, 0.3, 100, 100, 0xFF00FFFF, 0xFFFFFFFF);
 
     // Loop forever
     while(1) {
-
+	
+		// Check for controller input
         WPAD_ScanPads();  // Scan the Wiimotes
-		u16 buttonsDown = WPAD_ButtonsHeld(0);
+		u16 buttonsDown = WPAD_ButtonsHeld(0);  // Checks if any buttons are held (tutorials did it this way)
 		if (buttonsDown & WPAD_BUTTON_RIGHT) { p1ship.rotate(1);}
 		if (buttonsDown & WPAD_BUTTON_LEFT) { p1ship.rotate(-1);}
-		//if (buttonsDown & WPAD_BUTTON_DOWN) { yship++;}
 		if (buttonsDown & WPAD_BUTTON_UP) { p1ship.thrust();}
-		//if (buttonsDown & WPAD_BUTTON_2) { rship++;}
-		//if (buttonsDown & WPAD_BUTTON_1) { rship--;}
 
         // If [HOME] was pressed on the first Wiimote, break out of the loop
         if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  break;
-
-		//p1ship.collide(p1ship.getVx(), p1ship.getVy());
-
-        // Draw ship	
-		/*
-		if (p1ship.getX() < 0) {
-			p1ship.collide(p1ship.getVx(), p1ship.getVy());
-		} /*
-		if (p1ship.getY() - p1ship.getR() <= 0 || p1ship.getY() + p1ship.getR() >= screenH) {
-			p1ship.collide(p1ship.getVx(), -1 * p1ship.getVy());
-		} */
+	
 		
+		if ((p1ship.getX() - p1ship.getR()) < 0 || (p1ship.getX() + p1ship.getR()) > screenW) {
+			p1ship.collide(-1 * p1ship.getVx(), p1ship.getVy());
+		}
+		if ((p1ship.getY() - p1ship.getR()) < 0 || (p1ship.getY() + p1ship.getR()) > screenH) {
+			p1ship.collide(p1ship.getVx(), -1 * p1ship.getVy());
+		}
 		
 		p1ship.advance(1);
 		
+		// Draw everything (adding the 3rd line breaks the program)
+		GRRLIB_DrawImg(p1ship.getX(), p1ship.getY(), clbody, p1ship.getTheta(), scale, scale, p1ship.getScolor());
+		GRRLIB_DrawImg(p1ship.getX(), p1ship.getY(), claccent, p1ship.getTheta(), scale, scale, 0xFFFFFFFF);
+		GRRLIB_DrawImg(p1ship.getX(), p1ship.getY(), clshield, 0, 2 * p1ship.getR() / IMGSIZE, 2 * p1ship.getR() / IMGSIZE, 0xFFFFFFFF);
+		//GRRLIB_(p1ship.getX(), p1ship.getY(), R, 0xFFFFFFFF, true);
 		
-		GRRLIB_DrawImg(p1ship.getXdraw(), p1ship.getYdraw(), clbody, p1ship.getTheta(), 1, 1, p1ship.getSColor());
-		GRRLIB_DrawImg(p1ship.getXdraw(), p1ship.getYdraw(), claccent, p1ship.getTheta(), 1, 1,  0xFFFFFFFF);
-		//GRRLIB_DrawImg(100, 100, clbody, 0, 1, 1, 0xFFFFFFFF);
-
         GRRLIB_Render();  // Render the frame buffer to the TV
     }
 
