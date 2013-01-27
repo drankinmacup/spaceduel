@@ -7,6 +7,7 @@
 #include <grrlib.h>
 
 #include <stdlib.h>
+#include <cmath>
 #include <wiiuse/wpad.h>
 
 #include "Ship.h"
@@ -35,7 +36,7 @@ int main(int argc, char **argv) {
     // Initialize the Wiimotes
     WPAD_Init();
 	
-	Ship p1ship(56 * scale, 100, 0.3, 100, 100, 0xFF00FFFF, 0xFFFFFFFF);
+	Ship p1ship(56 * scale, 0xFF00FFFF, 0xFFFFFFFF);
 
     // Loop forever
     while(1) {
@@ -50,20 +51,28 @@ int main(int argc, char **argv) {
         // If [HOME] was pressed on the first Wiimote, break out of the loop
         if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  break;
 	
+		//string vXstr = static_cast<ostringstream*>( &(ostringstream() << p1ship.getVx()) )->str();
+		//string vYstr = static_cast<ostringstream*>( &(ostringstream() << p1ship.getVy()) )->str();
 		
-		if ((p1ship.getX() - p1ship.getR()) < 0 || (p1ship.getX() + p1ship.getR()) > screenW) {
-			p1ship.collide(-1 * p1ship.getVx(), p1ship.getVy());
+		if ((p1ship.getX() - p1ship.getR()) < 0) {
+			p1ship.collide(abs(p1ship.getVx()), p1ship.getVy());
 		}
-		if ((p1ship.getY() - p1ship.getR()) < 0 || (p1ship.getY() + p1ship.getR()) > screenH) {
-			p1ship.collide(p1ship.getVx(), -1 * p1ship.getVy());
+		if ((p1ship.getX() + p1ship.getR()) > screenW) {
+			p1ship.collide(-1.0 * abs(p1ship.getVx()), p1ship.getVy());
+		}
+		if ((p1ship.getY() - p1ship.getR()) < 0) {
+			p1ship.collide(p1ship.getVx(), abs(p1ship.getVy()));
+		}
+		if ((p1ship.getY() + p1ship.getR()) > screenH) {
+			p1ship.collide(p1ship.getVx(), -1.0 * abs(p1ship.getVy()));
 		}
 		
 		p1ship.advance(1);
 		
 		// Draw everything (adding the 3rd line breaks the program)
 		GRRLIB_DrawImg(p1ship.getX(), p1ship.getY(), clbody, p1ship.getTheta(), scale, scale, p1ship.getScolor());
-		GRRLIB_DrawImg(p1ship.getX(), p1ship.getY(), claccent, p1ship.getTheta(), scale, scale, 0xFFFFFFFF);
-		GRRLIB_DrawImg(p1ship.getX(), p1ship.getY(), clshield, 0, 2 * p1ship.getR() / IMGSIZE, 2 * p1ship.getR() / IMGSIZE, 0xFFFFFFFF);
+		GRRLIB_DrawImg(p1ship.getX(), p1ship.getY(), claccent, p1ship.getTheta(), scale, scale, p1ship.getAccentColor());
+		GRRLIB_DrawImg(p1ship.getX(), p1ship.getY(), clshield, 0, 2 * p1ship.getR() / IMGSIZE, 2 * p1ship.getR() / IMGSIZE, p1ship.getShieldColor());
 		//GRRLIB_(p1ship.getX(), p1ship.getY(), R, 0xFFFFFFFF, true);
 		
         GRRLIB_Render();  // Render the frame buffer to the TV

@@ -6,24 +6,33 @@
 ============================================*/
 #include "Ship.h"
 
-Ship::Ship(f32 Rc, f32 massc, f32 accc, f32 shieldMaxc, f32 ammoMaxc, u32 scolorc, u32 wcolorc) {
+Ship::Ship(f32 Rc, u32 scolorc, u32 wcolorc) {
 	R = Rc;
-	mass = massc;
-	accc = accc;
-	shieldMax = shieldMaxc;
-	shield = shieldMax;
-	ammoMax = ammoMaxc;
-	ammo = ammoMax;
 	scolor = scolorc;
 	wcolor = wcolorc;
+	
+	srand(time(0));
+	x = (2 * (int) R) + rand() % (640 - 4 * (int) R);
+	y = (2 * (int) R) + rand() % (480 - 4 * (int) R);
+	theta = rand() % 360;
+	
+	mass = 100;
+	acc = 0.3;
+	bounce = 0.9;
 	vx = 0;
 	vy = 0;
 	isAcc = false;
 	
-	srand(time(0));
-	x = 100 + rand() % 540;
-	y = 100 + rand() % 380;
-	theta = rand() % 360;
+	shieldMax = 100;
+	shield = shieldMax;
+	shieldWait = 1000;
+	shieldRecharge = 0.1;
+	shieldTimer = 0;
+	
+	ammoMax = 100;
+	ammo = ammoMax;
+	ammoWait = 100;
+	ammoRecharge = 100;
 }
 
 f32 Ship::getX() {
@@ -34,11 +43,11 @@ f32 Ship::getY() {
 	return y;
 }
 
-f32 Ship::getVx() {
+double Ship::getVx() {
 	return vx;
 }
 
-f32 Ship::getVy() {
+double Ship::getVy() {
 	return vy;
 }
 
@@ -59,11 +68,11 @@ u32 Ship::getWcolor() {
 }
 
 u32 Ship::getAccentColor() {
-	return ammo / ammoMax * 0xFFFFFFFF;
+	return 0xFFFFFF00 + (double) (ammo / ammoMax) * 0x000000FF;
 }
 
 u32 Ship::getShieldColor() {
-	return shield / shieldMax * 0xFFFFFFFF;
+	return 0xFFFFFF00 + (double) (shield / shieldMax) * 0x000000FF;
 }
 
 void Ship::thrust() {
@@ -75,8 +84,13 @@ void Ship::rotate(int dir) {
 }
 
 void Ship::collide(f32 vx2, f32 vy2) {
-	vx = vx2;
-	vy = vy2;
+	/*shield -= 0.5 * mass * (pow(pow(vx, 2) + pow(vy,2), 0.5) - pow(pow(bounce * vx, 2) + pow(bounce * vy,2), 0.5));
+	if (shield < 0) {
+		shield = 0;
+		shieldTimer = 0;
+	}*/
+	vx = vx2;//bounce * vx2;
+	vy = vy2;//bounce * vy2;
 }
 
 void Ship::advance(f32 time) {
@@ -85,4 +99,13 @@ void Ship::advance(f32 time) {
 	vx += (int) isAcc * sin(theta * PI / 180) * time * 0.03;
 	vy -= (int) isAcc * cos(theta * PI / 180) * time * 0.03;
 	isAcc = false;
+	
+	if (shield > 0) {
+		shield += shieldRecharge;
+		if (shield > shieldMax) {shield = shieldMax;}
+	}
+	else if (false) {//shield == 0) {
+		if (shieldTimer >= shieldWait) {shield = shieldMax;}
+		else {shieldTimer += time;}
+	}
 }

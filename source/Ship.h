@@ -11,15 +11,18 @@
 #define PI 3.14159265
 
 class Ship {
-		f32 x, y, vx, vy, theta, R, mass, acc, shield, shieldMax, ammo, ammoMax;
+		f32 x, y, theta, R, mass, acc, bounce;
+		double vx, vy;
+		f32 ammo, ammoMax, ammoWait, ammoRecharge, ammoTimer;
+		f32 shield, shieldMax, shieldWait, shieldRecharge, shieldTimer;
 		u32 scolor, wcolor;
 		bool isAcc;
 	public:
-		Ship(f32, f32, f32, f32, f32, u32, u32);
+		Ship(f32, u32, u32);
 		f32 getX();
 		f32 getY();
-		f32 getVx();
-		f32 getVy();
+		double getVx();
+		double getVy();
 		f32 getTheta();
 		f32 getR();
 		u32 getScolor();
