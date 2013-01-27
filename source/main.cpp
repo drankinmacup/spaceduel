@@ -55,16 +55,16 @@ int main(int argc, char **argv) {
 		//string vYstr = static_cast<ostringstream*>( &(ostringstream() << p1ship.getVy()) )->str();
 		
 		if ((p1ship.getX() - p1ship.getR()) < 0) {
-			p1ship.collide(abs(p1ship.getVx()), p1ship.getVy());
+			p1ship.collide(fabs(p1ship.getVx()), p1ship.getVy());
 		}
 		if ((p1ship.getX() + p1ship.getR()) > screenW) {
-			p1ship.collide(-1.0 * abs(p1ship.getVx()), p1ship.getVy());
+			p1ship.collide(-1.0 * fabs(p1ship.getVx()), p1ship.getVy());
 		}
 		if ((p1ship.getY() - p1ship.getR()) < 0) {
-			p1ship.collide(p1ship.getVx(), abs(p1ship.getVy()));
+			p1ship.collide(p1ship.getVx(), fabs(p1ship.getVy()));
 		}
 		if ((p1ship.getY() + p1ship.getR()) > screenH) {
-			p1ship.collide(p1ship.getVx(), -1.0 * abs(p1ship.getVy()));
+			p1ship.collide(p1ship.getVx(), -1.0 * fabs(p1ship.getVy()));
 		}
 		
 		p1ship.advance(1);

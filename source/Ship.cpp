@@ -16,7 +16,7 @@ Ship::Ship(f32 Rc, u32 scolorc, u32 wcolorc) {
 	y = (2 * (int) R) + rand() % (480 - 4 * (int) R);
 	theta = rand() % 360;
 	
-	mass = 100;
+	mass = 300;
 	acc = 0.3;
 	bounce = 0.9;
 	vx = 0;
@@ -84,13 +84,13 @@ void Ship::rotate(int dir) {
 }
 
 void Ship::collide(f32 vx2, f32 vy2) {
-	/*shield -= 0.5 * mass * (pow(pow(vx, 2) + pow(vy,2), 0.5) - pow(pow(bounce * vx, 2) + pow(bounce * vy,2), 0.5));
+	shield -= 0.5 * mass * (pow(pow(vx, 2) + pow(vy,2), 0.5) - pow(pow(bounce * vx, 2) + pow(bounce * vy,2), 0.5));
 	if (shield < 0) {
 		shield = 0;
 		shieldTimer = 0;
-	}*/
-	vx = vx2;//bounce * vx2;
-	vy = vy2;//bounce * vy2;
+	}
+	vx = bounce * vx2;
+	vy = bounce * vy2;
 }
 
 void Ship::advance(f32 time) {
@@ -104,7 +104,7 @@ void Ship::advance(f32 time) {
 		shield += shieldRecharge;
 		if (shield > shieldMax) {shield = shieldMax;}
 	}
-	else if (false) {//shield == 0) {
+	else if (shield == 0) {
 		if (shieldTimer >= shieldWait) {shield = shieldMax;}
 		else {shieldTimer += time;}
 	}
